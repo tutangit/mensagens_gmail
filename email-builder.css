@@ -1,0 +1,200 @@
+/* Email Builder Styles */
+.builder-container {
+    display: flex;
+    height: calc(100% - 30px);
+    gap: 2px;
+}
+
+.builder-sidebar {
+    width: 180px;
+    background-color: var(--win-gray);
+    border-right: 2px solid var(--win-gray-dark);
+    padding: 5px;
+    overflow-y: auto;
+}
+
+.builder-canvas-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #808080;
+    padding: 10px;
+    overflow: auto;
+}
+
+.builder-canvas {
+    background-color: white;
+    min-height: 400px;
+    border: 2px solid var(--win-black);
+    position: relative;
+    padding: 10px;
+}
+
+.builder-properties {
+    width: 250px;
+    background-color: var(--win-gray);
+    border-left: 2px solid var(--win-gray-dark);
+    padding: 10px;
+    overflow-y: auto;
+}
+
+/* Component Palette */
+.component-palette {
+    margin-bottom: 10px;
+}
+
+.palette-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    padding: 2px;
+    background-color: var(--win-blue);
+    color: white;
+    font-size: 11px;
+}
+
+.component-item {
+    background-color: var(--win-gray);
+    border: 1px solid var(--win-gray-dark);
+    padding: 8px;
+    margin-bottom: 3px;
+    cursor: grab;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.component-item:active {
+    cursor: grabbing;
+}
+
+.component-item:hover {
+    background-color: var(--win-gray-light);
+}
+
+/* Canvas Elements */
+.canvas-element {
+    position: relative;
+    cursor: pointer;
+    min-height: 30px;
+    border: 2px dashed transparent;
+    padding: 5px;
+    margin: 5px 0;
+}
+
+.canvas-element:hover {
+    border-color: #0000ff;
+}
+
+.canvas-element.selected {
+    border-color: #ff0000;
+    background-color: rgba(255, 0, 0, 0.05);
+}
+
+.canvas-element.dragging {
+    opacity: 0.5;
+}
+
+.element-group {
+    border: 1px solid #ccc;
+    padding: 10px;
+    min-height: 50px;
+}
+
+.element-group.layout-row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.element-group.layout-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.element-group.drop-active {
+    background-color: rgba(0, 0, 255, 0.1);
+    border: 2px dashed #0000ff !important;
+}
+
+/* Properties Panel */
+.prop-group {
+    margin-bottom: 15px;
+}
+
+.prop-label {
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 3px;
+    display: block;
+}
+
+.prop-input {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.prop-select {
+    width: 100%;
+    padding: 2px;
+    font-family: var(--font-main);
+    font-size: 11px;
+}
+
+.prop-color {
+    width: 100%;
+    height: 25px;
+    cursor: pointer;
+}
+
+.prop-buttons {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.prop-buttons button {
+    flex: 1;
+    font-size: 10px;
+    min-width: 0;
+}
+
+/* Toolbar */
+.builder-toolbar {
+    background-color: var(--win-gray);
+    padding: 5px;
+    border-bottom: 2px solid var(--win-gray-dark);
+    display: flex;
+    gap: 5px;
+}
+
+.builder-toolbar button {
+    font-size: 11px;
+    padding: 3px 8px;
+}
+
+/* Drop Zone Indicator */
+.drop-zone {
+    border: 2px dashed #0000ff;
+    background-color: rgba(0, 0, 255, 0.1);
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0000ff;
+    font-size: 11px;
+}
+
+/* Empty State */
+.canvas-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #808080;
+    font-size: 12px;
+    text-align: center;
+    padding: 20px;
+}

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RetroMail Sender - Windows 98 Edition</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./email-builder.css" />
+</head>
+
+<body>
+  <!-- Login Screen -->
+  <div id="login-screen">
+    <div class="window" style="width: 300px;">
+      <div class="title-bar">
+        <div class="title-bar-text">
+          <img src="https://win98icons.alexmeub.com/icons/png/key_win-0.png" width="16" height="16" alt="key">
+          Login - RetroMail
+        </div>
+        <div class="title-bar-controls">
+          <div class="title-bar-btn">X</div>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="login-form">
+          <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+            <img src="https://win98icons.alexmeub.com/icons/png/computer_explorer-4.png" width="32" height="32"
+              alt="pc">
+            <div>Bem-vindo ao RetroMail Sender.<br>Por favor, identifique-se.</div>
+          </div>
+          <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="email" placeholder="seu@email.com" />
+          </div>
+          <div class="form-group">
+            <label>Senha:</label>
+            <input type="password" id="password" />
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 5px; margin-top: 10px;">
+            <button id="signup-btn">Registrar</button>
+            <button id="login-btn">Entrar</button>
+          </div>
+          <div id="login-error" style="color: red; font-size: 11px; display: none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desktop Environment (Hidden by default) -->
+  <div id="desktop" class="hidden">
+    <!-- Desktop Icons -->
+    <div style="position: absolute; top: 10px; left: 10px;">
+      <div class="desktop-icon" onclick="app.openWindow('compose-text')">
+        <img src="https://win98icons.alexmeub.com/icons/png/mail_generic-0.png" alt="mail">
+        <span>Novo Email</span>
+      </div>
+      <div class="desktop-icon" onclick="app.openWindow('compose-html')">
+        <img src="https://win98icons.alexmeub.com/icons/png/html-0.png" alt="html">
+        <span>Email HTML</span>
+      </div>
+      <div class="desktop-icon" onclick="app.openWindow('history')">
+        <img src="https://win98icons.alexmeub.com/icons/png/address_book-0.png" alt="history">
+        <span>Histórico</span>
+      </div>
+      <div class="desktop-icon" onclick="app.openWindow('settings')">
+        <img src="https://win98icons.alexmeub.com/icons/png/settings_gear-0.png" alt="settings">
+        <span>Configurações</span>
+      </div>
+      <div class="desktop-icon" onclick="app.openWindow('email-builder')">
+        <img src="https://win98icons.alexmeub.com/icons/png/paint_file-2.png" alt="builder">
+        <span>Email Builder</span>
+      </div>
+    </div>
+
+    <!-- Compose Text Window -->
+    <div id="window-compose-text" class="window hidden" style="top: 50px; left: 100px; width: 400px; z-index: 10;">
+      <div class="title-bar">
+        <div class="title-bar-text">
+          <img src="https://win98icons.alexmeub.com/icons/png/mail_write-0.png" width="16" height="16" alt="mail">
+          Nova Mensagem
+        </div>
+        <div class="title-bar-controls">
+          <div class="title-bar-btn" onclick="app.closeWindow('compose-text')">X</div>
+        </div>
+      </div>
+      <div class="menu-bar">
+        <div class="menu-item">Arquivo</div>
+        <div class="menu-item">Editar</div>
+        <div class="menu-item">Ajuda</div>
+      </div>
+      <div class="window-body flex-col">
+        <div class="flex-row">
+          <label style="width: 50px;">Para:</label>
+          <input type="email" id="text-to" style="flex-grow: 1;">
+        </div>
+        <div class="flex-row">
+          <label style="width: 50px;">Assunto:</label>
+          <input type="text" id="text-subject" style="flex-grow: 1;">
+        </div>
+        <textarea id="text-body" style="height: 200px; resize: none;"></textarea>
+        <div class="status-bar flex-row" style="justify-content: space-between;">
+          <span id="text-status">Pronto</span>
+          <button onclick="app.sendTextEmail()">Enviar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compose HTML Window -->
+    <div id="window-compose-html" class="window hidden" style="top: 80px; left: 150px; width: 500px; z-index: 11;">
+      <div class="title-bar">
+        <div class="title-bar-text">
+          <img src="https://win98icons.alexmeub.com/icons/png/html-0.png" width="16" height="16" alt="html">
+          Editor HTML
+        </div>
+        <div class="title-bar-controls">
+          <div class="title-bar-btn" onclick="app.closeWindow('compose-html')">X</div>
+        </div>
+      </div>
+      <div class="menu-bar">
+        <div class="menu-item">Arquivo</div>
+        <div class="menu-item">Inserir</div>
+        <div class="menu-item">Ajuda</div>
+      </div>
+      <div class="window-body flex-col">
+        <div class="flex-row">
+          <label style="width: 50px;">Para:</label>
+          <input type="email" id="html-to" style="flex-grow: 1;">
+        </div>
+        <div class="flex-row">
+          <label style="width: 50px;">Assunto:</label>
+          <input type="text" id="html-subject" style="flex-grow: 1;">
+        </div>
+        <label>Código HTML:</label>
+        <textarea id="html-body" style="height: 150px; font-family: monospace;"></textarea>
+        <div class="status-bar flex-row" style="justify-content: space-between;">
+          <span id="html-status">Pronto</span>
+          <button onclick="app.sendHtmlEmail()">Enviar HTML</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Window -->
+    <div id="window-history" class="window hidden" style="top: 100px; left: 200px; width: 500px; z-index: 9;">
+      <div class="title-bar">
+        <div class="title-bar-text">
+          <img src="https://win98icons.alexmeub.com/icons/png/address_book-0.png" width="16" height="16" alt="history">
+          Histórico de Envios
+        </div>
+        <div class="title-bar-controls">
+          <div class="title-bar-btn" onclick="app.closeWindow('history')">X</div>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="data-grid">
+          <div class="grid-header">
+            <div class="grid-col" style="width: 120px;">Data</div>
+            <div class="grid-col" style="width: 150px;">Para</div>
+            <div class="grid-col" style="flex-grow: 1;">Assunto</div>
+            <div class="grid-col" style="width: 60px;">Status</div>
+          </div>
+          <div id="history-list">
+            <!-- Rows will be populated here -->
+          </div>
+        </div>
+        <div class="status-bar">
+          <span id="history-count">0 itens</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Window -->
+    <div id="window-settings" class="window hidden" style="top: 120px; left: 250px; width: 350px; z-index: 12;">
+      <div class="title-bar">
+        <div class="title-bar-text">
+          <img src="https://win98icons.alexmeub.com/icons/png/settings_gear-0.png" width="16" height="16"
+            alt="settings">
+          Configurações
+        </div>
+        <div class="title-bar-controls">
+          <div class="title-bar-btn" onclick="app.closeWindow('settings')">X</div>
+        </div>
+      </div>
+      <div class="window-body flex-col">
+        <fieldset style="border: 1px solid var(--win-white); padding: 10px; margin-bottom: 10px;">
+          <legend>Conta Gmail</legend>
+          <div id="gmail-status-area">
+            <p>Status: <span id="gmail-status">Desconectado</span></p>
+            <button id="connect-gmail-btn" onclick="app.connectGmail()">Conectar Gmail</button>
+          </div>
+        </fieldset>
+        <fieldset style="border: 1px solid var(--win-white); padding: 10px;">
+          <legend>Sessão</legend>
+          <p>Usuário: <span id="user-email">...</span></p>
+          <button onclick="app.logout()">Sair do Sistema</button>
+        </fieldset>
+      </div>
+    </div>
+
+    <!-- Email Builder Window -->
+    <div id="window-email-builder" class="window hidden"
+      style="top: 30px; left: 50px; width: 90%; height: 90%; max-width: 1200px; z-index: 13;">
+      <div class="title-bar">
+        <div class="title-bar-text">
+          <img src="https://win98icons.alexmeub.com/icons/png/paint_file-2.png" width="16" height="16" alt="builder">
+          Email Builder
+        </div>
+        <div class="title-bar-controls">
+          <div class="title-bar-btn" onclick="app.closeWindow('email-builder')">X</div>
+        </div>
+      </div>
+      <div class="builder-toolbar">
+        <input type="text" id="template-name-input" placeholder="Nome do Template"
+          style="padding: 2px 5px; font-size: 11px; width: 150px;">
+        <button onclick="emailBuilder.saveTemplate()">Salvar</button>
+        <button onclick="app.useBuilderHTML()">Usar no Email</button>
+      </div>
+      <div class="builder-container">
+        <div class="builder-sidebar">
+          <div id="component-palette"></div>
+          <div style="margin-top: 20px; border-top: 2px solid var(--win-gray-dark); padding-top: 10px;">
+            <div class="palette-title">Meus Templates</div>
+            <div id="templates-list" style="max-height: 200px; overflow-y: auto;"></div>
+          </div>
+        </div>
+        <div class="builder-canvas-area">
+          <div id="builder-canvas" class="builder-canvas"></div>
+        </div>
+        <div class="builder-properties">
+          <div
+            style="font-weight: bold; margin-bottom: 10px; padding: 3px; background-color: var(--win-blue); color: white; font-size: 11px;">
+            Propriedades</div>
+          <div id="properties-panel"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="/email-builder.js"></script>
+  <!-- Confirmation Modal -->
+  <div id="window-confirm" class="window hidden"
+    style="width: 300px; z-index: 2000; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+    <div class="title-bar">
+      <div class="title-bar-text">Confirmação</div>
+      <div class="title-bar-controls">
+        <div class="title-bar-btn" onclick="app.closeWindow('confirm')">X</div>
+      </div>
+    </div>
+    <div class="window-body" style="text-align: center;">
+      <p id="confirm-message" style="margin-bottom: 15px;">Tem certeza?</p>
+      <div style="display: flex; justify-content: center; gap: 10px;">
+        <button id="confirm-yes" style="min-width: 60px;">Sim</button>
+        <button onclick="app.closeWindow('confirm')" style="min-width: 60px;">Não</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>
