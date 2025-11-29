@@ -52,7 +52,8 @@ const componentTypes = {
       alt: 'Image description',
       width: '300px',
       height: 'auto',
-      textAlign: 'center'
+      textAlign: 'center',
+      borderRadius: '0px'
     }
   },
   group: {
@@ -174,6 +175,160 @@ function deleteElement(id) {
   renderProperties()
 }
 
+// Duplicate Element
+function duplicateElement(id) {
+  const element = findElement(id)
+  if (!element) return
+
+  // Create a deep copy of the element
+  const duplicatedElement = {
+    id: generateId(),
+    type: element.type,
+    props: { ...element.props },
+    parentId: element.parentId
+  }
+
+  // If it's a group, duplicate all children recursively
+  if (element.type === 'group' && element.props.children && element.props.children.length > 0) {
+    const duplicatedChildrenIds = []
+
+    element.props.children.forEach(childId => {
+      const child = findElement(childId)
+      if (child) {
+        const duplicatedChild = duplicateElementRecursive(child, duplicatedElement.id)
+        duplicatedChildrenIds.push(duplicatedChild.id)
+      }
+    })
+
+    duplicatedElement.props = {
+      ...duplicatedElement.props,
+      children: duplicatedChildrenIds
+    }
+  }
+
+  // Add to parent's children if nested
+  if (duplicatedElement.parentId) {
+    const parent = findElement(duplicatedElement.parentId)
+    if (parent && parent.type === 'group') {
+      parent.props.children.push(duplicatedElement.id)
+    }
+  }
+
+  builderState.elements.push(duplicatedElement)
+  renderCanvas()
+  selectElement(duplicatedElement.id)
+}
+
+// Helper function to recursively duplicate elements
+function duplicateElementRecursive(element, newParentId) {
+  const duplicated = {
+    id: generateId(),
+    type: element.type,
+    props: { ...element.props },
+    parentId: newParentId
+  }
+
+  // If it's a group, duplicate children
+  if (element.type === 'group' && element.props.children && element.props.children.length > 0) {
+    const duplicatedChildrenIds = []
+
+    element.props.children.forEach(childId => {
+      const child = findElement(childId)
+      if (child) {
+        const duplicatedChild = duplicateElementRecursive(child, duplicated.id)
+        duplicatedChildrenIds.push(duplicatedChild.id)
+      }
+    })
+
+    duplicated.props = {
+      ...duplicated.props,
+      children: duplicatedChildrenIds
+    }
+  }
+
+  builderState.elements.push(duplicated)
+  return duplicated
+}
+
+// Move Element Up (towards end of array = rendered on top)
+function moveElementUp(id) {
+  const element = findElement(id)
+  if (!element) return
+
+  // If element has a parent (is inside a group)
+  if (element.parentId) {
+    const parent = findElement(element.parentId)
+    if (!parent || !parent.props.children) return
+
+    const children = parent.props.children
+    const currentIndex = children.indexOf(id)
+
+    // Can't move up if already at the end
+    if (currentIndex === -1 || currentIndex === children.length - 1) return
+
+    // Swap with next element
+    [children[currentIndex], children[currentIndex + 1]] = [children[currentIndex + 1], children[currentIndex]]
+  } else {
+    // Root level element
+    const rootElements = builderState.elements.filter(el => !el.parentId)
+    const currentIndex = rootElements.findIndex(el => el.id === id)
+
+    if (currentIndex === -1 || currentIndex === rootElements.length - 1) return
+
+    // Find actual indices in main array
+    const actualCurrentIndex = builderState.elements.indexOf(rootElements[currentIndex])
+    const actualNextIndex = builderState.elements.indexOf(rootElements[currentIndex + 1])
+
+    // Swap in main array
+    const temp = builderState.elements[actualCurrentIndex]
+    builderState.elements[actualCurrentIndex] = builderState.elements[actualNextIndex]
+    builderState.elements[actualNextIndex] = temp
+  }
+
+  renderCanvas()
+  renderProperties()
+}
+
+// Move Element Down (towards start of array = rendered below)
+function moveElementDown(id) {
+  const element = findElement(id)
+  if (!element) return
+
+  // If element has a parent (is inside a group)
+  if (element.parentId) {
+    const parent = findElement(element.parentId)
+    if (!parent || !parent.props.children) return
+
+    const children = parent.props.children
+    const currentIndex = children.indexOf(id)
+
+    // Can't move down if already at the start
+    if (currentIndex <= 0) return
+
+    // Swap with previous element
+    [children[currentIndex], children[currentIndex - 1]] = [children[currentIndex - 1], children[currentIndex]]
+  } else {
+    // Root level element
+    const rootElements = builderState.elements.filter(el => !el.parentId)
+    const currentIndex = rootElements.findIndex(el => el.id === id)
+
+    if (currentIndex <= 0) return
+
+    // Find actual indices in main array
+    const actualCurrentIndex = builderState.elements.indexOf(rootElements[currentIndex])
+    const actualPrevIndex = builderState.elements.indexOf(rootElements[currentIndex - 1])
+
+    // Swap in main array
+    const temp = builderState.elements[actualCurrentIndex]
+    builderState.elements[actualCurrentIndex] = builderState.elements[actualPrevIndex]
+    builderState.elements[actualPrevIndex] = temp
+  }
+
+  renderCanvas()
+  renderProperties()
+}
+
+
 // Render Canvas
 function renderCanvas() {
   const canvas = document.getElementById('builder-canvas')
@@ -265,7 +420,7 @@ function renderElement(element) {
         <div class="canvas-element ${selectedClass}" data-id="${element.id}">
           <div style="text-align: ${element.props.textAlign};">
             <img src="${element.props.src}" alt="${element.props.alt}" 
-              style="width: ${element.props.width}; height: ${element.props.height}; max-width: 100%;">
+              style="width: ${element.props.width}; height: ${element.props.height}; max-width: 100%; border-radius: ${element.props.borderRadius};">
           </div>
         </div>
       `
@@ -415,6 +570,10 @@ function renderProperties() {
           <input type="text" class="prop-input" value="${props.height}" data-prop="height">
         </div>
         <div class="prop-group">
+          <label class="prop-label">Borda Arredondada:</label>
+          <input type="text" class="prop-input" value="${props.borderRadius}" data-prop="borderRadius" placeholder="0px, 10px, 50%">
+        </div>
+        <div class="prop-group">
           <label class="prop-label">Alinhamento:</label>
           <select class="prop-select" data-prop="textAlign">
             <option value="left" ${props.textAlign === 'left' ? 'selected' : ''}>Esquerda</option>
@@ -452,6 +611,11 @@ function renderProperties() {
 
   html += `
     <div class="prop-buttons">
+      <button onclick="window.emailBuilder.moveUp()" title="Mover para frente">⬇️ Descer</button>
+      <button onclick="window.emailBuilder.moveDown()" title="Mover para trás">⬆️ Subir</button>
+    </div>
+    <div class="prop-buttons">
+      <button onclick="window.emailBuilder.duplicateSelected()">Duplicar</button>
       <button onclick="window.emailBuilder.deleteSelected()">Excluir</button>
     </div>
   `
@@ -530,7 +694,7 @@ function generateElementHTML(element) {
       return `<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="padding: 10px 0;"><a href="${props.link}" style="display: inline-block; background-color: ${props.backgroundColor}; color: ${props.textColor}; padding: ${props.padding}; border-radius: ${props.borderRadius}; text-decoration: none; font-family: Arial, sans-serif;">${props.text}</a></td></tr></table>`
 
     case 'image':
-      return `<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="${props.textAlign}" style="padding: 10px 0;"><img src="${props.src}" alt="${props.alt}" style="width: ${props.width}; height: ${props.height}; display: block; max-width: 100%;"></td></tr></table>`
+      return `<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="${props.textAlign}" style="padding: 10px 0;"><img src="${props.src}" alt="${props.alt}" style="width: ${props.width}; height: ${props.height}; display: block; max-width: 100%; border-radius: ${props.borderRadius};"></td></tr></table>`
 
     case 'group':
       const children = props.children
@@ -731,6 +895,27 @@ export function deleteSelected() {
   }
 }
 
+// Duplicate Selected
+export function duplicateSelected() {
+  if (builderState.selectedElement) {
+    duplicateElement(builderState.selectedElement)
+  }
+}
+
+// Move Selected Up
+export function moveUp() {
+  if (builderState.selectedElement) {
+    moveElementUp(builderState.selectedElement)
+  }
+}
+
+// Move Selected Down
+export function moveDown() {
+  if (builderState.selectedElement) {
+    moveElementDown(builderState.selectedElement)
+  }
+}
+
 // Utility
 function generateId() {
   return 'el_' + Math.random().toString(36).substr(2, 9)
@@ -739,6 +924,9 @@ function generateId() {
 // Export to window for inline onclick handlers
 window.emailBuilder = {
   deleteSelected,
+  duplicateSelected,
+  moveUp,
+  moveDown,
   saveTemplate,
   deleteTemplate,
   loadTemplate,
